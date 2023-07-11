@@ -80,6 +80,17 @@ void ICalendar::LoadFromFile() {
 				} else if (Line.find("DTEND") == 0) {
 					NewEvent->DtEnd = GetProperty(Line);
 					NewEvent->DtEnd.tzid = GetSubProperty(Line, "TZID");
+                                } else if (Line.find("DURATION") == 0) {
+                                   NewEvent->DtEnd = NewEvent->DtStart;
+                                   int count; char unit;
+                                   // Should try to find a second or third count|unit pair
+                                   if (2 == sscanf(GetProperty(Line).c_str(),"PT%u%c",&count,&unit)) switch(unit) {
+                                       case 'S': NewEvent->DtEnd[SECOND] += count; break;
+                                       case 'M': NewEvent->DtEnd[MINUTE] += count; break;
+                                       case 'H': NewEvent->DtEnd[HOUR] += count; break;
+                                       case 'D': NewEvent->DtEnd[DAY] += count; break;
+                                       case 'W': NewEvent->DtEnd[WEEK] += count; break;
+                                   }
 				} else if (Line.find("EXDATE") == 0) {
 					Date d; 
                                         d = GetProperty(Line);
