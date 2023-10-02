@@ -61,7 +61,7 @@ void ICalendar::LoadFromFile() {
 
 		switch (CurrentComponent) {
 			case VCALENDAR:
-				if (Line.find("BEGIN:VEVENT") == 0) {
+				if (Line.find("BEGIN:VEVENT") == 0 || Line.find("BEGIN:VTODO") == 0) {
 					NewEvent = new Event;
 					CurrentComponent = VEVENT;
 				}
@@ -72,6 +72,8 @@ void ICalendar::LoadFromFile() {
 					NewEvent->UID = GetProperty(Line);
 				} else if (Line.find("SUMMARY") == 0) {
 					NewEvent->Summary = GetProperty(Line);
+				} else if (Line.find("COMPLETED") == 0) {
+					NewEvent->Completed = GetProperty(Line);
 				} else if (Line.find("DTSTAMP") == 0) {
 					NewEvent->DtStamp = GetProperty(Line);
 				} else if (Line.find("DTSTART") == 0) {
@@ -80,17 +82,6 @@ void ICalendar::LoadFromFile() {
 				} else if (Line.find("DTEND") == 0) {
 					NewEvent->DtEnd = GetProperty(Line);
 					NewEvent->DtEnd.tzid = GetSubProperty(Line, "TZID");
-                                } else if (Line.find("DURATION") == 0) {
-                                   NewEvent->DtEnd = NewEvent->DtStart;
-                                   int count; char unit;
-                                   // Should try to find a second or third count|unit pair
-                                   if (2 == sscanf(GetProperty(Line).c_str(),"PT%u%c",&count,&unit)) switch(unit) {
-                                       case 'S': NewEvent->DtEnd[SECOND] += count; break;
-                                       case 'M': NewEvent->DtEnd[MINUTE] += count; break;
-                                       case 'H': NewEvent->DtEnd[HOUR] += count; break;
-                                       case 'D': NewEvent->DtEnd[DAY] += count; break;
-                                       case 'W': NewEvent->DtEnd[WEEK] += count; break;
-                                   }
 				} else if (Line.find("EXDATE") == 0) {
 					Date d; 
                                         d = GetProperty(Line);
@@ -100,6 +91,8 @@ void ICalendar::LoadFromFile() {
 					NewEvent->Description = GetProperty(Line);
 				} else if (Line.find("CATEGORIES") == 0) {
 					NewEvent->Categories = GetProperty(Line);
+				} else if (Line.find("STATUS") == 0) {
+					NewEvent->Status = GetProperty(Line);
 				} else if (Line.find("RRULE") == 0) {
 					NewEvent->RRule.Freq = ConvertFrequency(GetSubProperty(Line, "FREQ"));
 					NewEvent->RRule.Interval = atoi(GetSubProperty(Line, "INTERVAL").c_str());
@@ -114,7 +107,7 @@ void ICalendar::LoadFromFile() {
 					NewAlarm.Clear();
 					PrevComponent = CurrentComponent;
 					CurrentComponent = VALARM;
-				} else if (Line.find("END:VEVENT") == 0) {
+				} else if (Line.find("END:VEVENT") == 0 || Line.find("END:VTODO") == 0) {
 					if (NewEvent->UID.empty())
 						NewEvent->UID = NoUID++;
 
@@ -135,6 +128,7 @@ void ICalendar::LoadFromFile() {
 					CurrentComponent = PrevComponent;
 				}
 				break;
+
 		}
 	}
 
@@ -204,7 +198,7 @@ void ICalendar::DeleteEvent(Event *DeletedEvent) {
 		// getline() removes only '\n' from the end of the line (not '\r')
 		FixLineEnd(Line, Length);
 
-		if (Line.find("BEGIN:VEVENT") == 0) {
+		if (Line.find("BEGIN:VEVENT") == 0 || Line.find("BEGIN:VTODO") == 0) {
 			Copy = false;
 			Deleted = false;
 			PartialData = "";
@@ -217,7 +211,7 @@ void ICalendar::DeleteEvent(Event *DeletedEvent) {
 		else if (Deleted == false)
 			PartialData += Line;
 
-		if (Line.find("END:VEVENT") == 0) {
+		if (Line.find("END:VEVENT") == 0 || Line.find("END:VTODO") == 0) {
 			Copy = true;
 
 			if (Deleted == false)
@@ -266,7 +260,7 @@ void ICalendar::ModifyEvent(Event *ModifiedEvent) {
 		// getline() removes only '\n' from the end of the line (not '\r')
 		FixLineEnd(Line, Length);
 
-		if (Line.find("BEGIN:VEVENT") == 0) {
+		if (Line.find("BEGIN:VEVENT") == 0 || Line.find("BEGIN:VTODO") == 0) {
 			Copy = false;
 			Modified = false;
 			PartialData = "";
@@ -280,7 +274,7 @@ void ICalendar::ModifyEvent(Event *ModifiedEvent) {
 		else if (Modified == false)
 			PartialData += Line;
 
-		if (Line.find("END:VEVENT") == 0) {
+		if (Line.find("END:VEVENT") == 0 || Line.find("END:VTODO") == 0) {
 			Copy = true;
 
 			if (Modified == false)

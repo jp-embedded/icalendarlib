@@ -104,6 +104,10 @@ Event::operator string() const {
 		Text += "\r\nDTSTAMP:";
 		Text += DtStamp;
 	}
+	if (!Completed.IsEmpty()) {
+		Text += "\r\nDTSTAMP:";
+		Text += Completed;
+	}
 	Text += "\r\nDTSTART:";
 	Text += DtStart;
 	if (!DtEnd.IsEmpty()) {
@@ -117,6 +121,10 @@ Event::operator string() const {
 	if (!Categories.empty()) {
 		Text += "\r\nCATEGORIES:";
 		Text += Categories;
+	}
+	if(!Status.empty()) {
+		Text += "\r\nSTATUS:";
+		Text += Status;
 	}
 	if (!RRule.IsEmpty()) {
 		Text += "\r\nRRULE:";
