@@ -61,6 +61,8 @@ struct Event {
 		Summary(Base.Summary),
 		Description(Base.Description),
 		Categories(Base.Categories),
+		Status(Base.Status),
+		Completed(Base.Completed),
 		DtStamp(Base.DtStamp),
 		DtStart(Base.DtStart),
 		DtEnd(Base.DtEnd),
@@ -80,8 +82,8 @@ struct Event {
 	operator string() const;
 	bool HasAlarm(const Date &From, const Date &To);
 
-	string UID, Summary, Description, Categories;
-	Date DtStamp, DtStart, DtEnd;
+	string UID, Summary, Description, Categories, Status;
+	Date Completed, DtStamp, DtStart, DtEnd;
 	Recurrence RRule;
 	list<Alarm> *Alarms;
         list<Date> *ExDates;
