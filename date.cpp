@@ -75,39 +75,33 @@ unsigned long Date::Difference(Date &OtherDate, TimeUnit Unit, bool RoundUp) con
 			break;
 			
 		case HOUR:
-			if (Data[DAY] == OtherDate.Data[DAY]) {
-				Result = Data[HOUR] - OtherDate.Data[HOUR];
-			} else {
-				Result = 24 - OtherDate.Data[HOUR];
-				Result += (Difference(OtherDate, DAY, false) - 1) * 24;
-				Result += Data[HOUR];
-			}
+			Result = Difference(OtherDate, DAY, false) * 24 + Data[HOUR] - OtherDate.Data[HOUR];
 			break;
 			
 		case MINUTE:
-			if (Data[HOUR] == OtherDate.Data[HOUR]) {
-				Result = Data[MINUTE] - OtherDate.Data[MINUTE];
-			} else {
-				Result = 60 - OtherDate.Data[MINUTE];
-				Result += (Difference(OtherDate, HOUR, false) - 1) * 60;
-				Result += Data[MINUTE];
-			}
+			Result = Difference(OtherDate, HOUR, false) * 60 + Data[MINUTE] - OtherDate.Data[MINUTE];
 			break;
 			
 		case SECOND:
-			if (Data[MINUTE] == OtherDate.Data[MINUTE]) {
-				Result = Data[SECOND] - OtherDate.Data[SECOND];
-			} else {
-				Result = 60 - OtherDate.Data[SECOND];
-				Result += (Difference(OtherDate, MINUTE, false) - 1) * 60;
-				Result += Data[SECOND];
-			}
+			Result = Difference(OtherDate, MINUTE, false) * 60 + Data[SECOND] - OtherDate.Data[SECOND];
 			break;
 			
 		case WEEK:
-			Result = Difference(OtherDate, DAY, false)/7 + 1;
+			Result = (Difference(OtherDate, DAY, false) + 6) / 7;
 			break;
 	}
+
+        // Example hour results
+        // 22:01 - 20:51 = 1:10 =>  Result = 2, Compare = -1, round-up = 2
+        // 22:51 - 20:01 = 2:50 =>  Result = 2, Compare =  1, round-up = 3  (+1)
+        // 22:31 - 20:30 = 2:01 =>  Result = 2, Compare =  1, round-up = 3  (+1)
+        // 22:30 - 20:30 = 2:00 =>  Result = 2, Compare =  0, round-up = 2
+      	
+        // Example week results. WEEK is not rounded below, but in case above
+        // mon 30 - fri 29 =  3d = 0w =>  Result = 1, Compare = -1, round-up = 1
+        // fri 30 - mon 29 = 11d = 1w =>  Result = 1, Compare =  1, round-up = 2  (+1)
+        // wed 30 - tue 29 =  8d = 1w =>  Result = 1, Compare =  1, round-up = 2  (+1)
+        // wed 30 - wed 29 =  7d = 1w =>  Result = 1, Compare =  0, round-up = 1
 	
 	if (RoundUp == true && Unit < SECOND && Compare(OtherDate, (TimeUnit)(Unit+1)) > 0)
 		++Result;
@@ -191,6 +185,7 @@ Date::DatePart &Date::DatePart::operator -=(short Value) {
 			break;
 		
 		case DAY:
+                        // todo: won't work for large Value
 			BaseDate.Data[DAY] -= Value;
 			while (BaseDate.Data[DAY] < 1) {
 				BaseDate[MONTH] -= 1;
@@ -199,6 +194,7 @@ Date::DatePart &Date::DatePart::operator -=(short Value) {
 			break;
 		
 		case HOUR:
+                        // todo: won't work for large Value
 			BaseDate.Data[HOUR] -= Value;
 			if (BaseDate.Data[HOUR] < 0) {
 				BaseDate[DAY] -= -(BaseDate.Data[HOUR]-24)/24;
@@ -207,6 +203,7 @@ Date::DatePart &Date::DatePart::operator -=(short Value) {
 			break;
 		
 		case MINUTE:
+                        // todo: won't work for large Value
 			BaseDate.Data[MINUTE] -= Value;
 			if (BaseDate.Data[MINUTE] < 0) {
 				BaseDate[HOUR] -= -(BaseDate.Data[MINUTE]-60)/60;
@@ -215,6 +212,7 @@ Date::DatePart &Date::DatePart::operator -=(short Value) {
 			break;
 		
 		case SECOND:
+                        // todo: won't work for large Value
 			BaseDate.Data[SECOND] -= Value;
 			if (BaseDate.Data[SECOND] < 0) {
 				BaseDate[MINUTE] -= -(BaseDate.Data[SECOND]-60)/60;
