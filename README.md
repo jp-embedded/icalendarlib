@@ -12,4 +12,5 @@ See main.cpp for example use.
 License
 -------
 
-iCalendarLib is provided under the MIT license.
+This project is originally developed by Juliusz Gonera <jgonera@gmail.com>, but is now continued and professionally supported by [jp-embedded ApS](http://jp-embedded.com) and is released under the [GNU GPL v3](http://www.gnu.org/licenses/gpl.html).
+
